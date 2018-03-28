@@ -16,10 +16,12 @@
 ## 1. single code's DataFrame (SamSung Electronic)
 
 ```python
-from googlefinance.get import get_finance
-df = get_finance("KRX:005930",
-                 period='30d',    # total period
-                 interval='300')  # data interval (step by : 60 sec * n)
+$ pip install googlefinance.get
+
+from googlefinance.get import get_data
+df = get_data("KRX:005930",
+              period='30d',    # total period
+              interval='300')  # data interval (step by : 60 sec * n)
 print(df)
 #                          Code       Open       High        Low      Close  \
 #2018-02-12 09:05:00  KRX:005930  2255000.0  2258000.0  2252000.0  2254000.0
@@ -35,10 +37,10 @@ print(df)
 
 ## 2. Codes DataFrame (.get is Both usable)
 ```python
-df = get_finance(["INDEXDJX:.DJI",
-                  "INDEXNYSEGIS:NYA",
-                  "KRX:005930",
-                  "KOSDAQ:053800"], period='1Y')
+df = get_data(["INDEXDJX:.DJI",
+               "INDEXNYSEGIS:NYA",
+               "KRX:005930",
+               "KOSDAQ:053800"], period='1Y')
 print(df)
 
 #                              Code      Open      High       Low     Close  \

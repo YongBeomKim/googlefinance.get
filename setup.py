@@ -16,7 +16,7 @@ setup(
     license          = 'MIT',
     author           = 'erdos',
     author_email     = 'saltman21@naver.com',
-    url              = 'https://github.com/YongBeomKim/googlefinance.get',
+    url              = 'https://github.com/YongBeomKim/googlefinance.get/blob/master/dist/googlefinance.get-0.4.1-py3-none-any.whl',
     keywords         = 'googlefinance',
     install_requires = ['requests', 'pandas'],
     classifiers      = ['Programming Language :: Python :: 3.6',
