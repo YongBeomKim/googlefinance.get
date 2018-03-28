@@ -9,7 +9,7 @@ except ImportError:
 
 setup(
     name             = 'googlefinance.get',
-    version          = '0.4.0',
+    version          = '0.4.1',
     packages         = find_packages(),
     # packages         = ['googlefinance.get'], # this must be the same as the name above
     description      = 'googlefinance.get is a single function from google finance api to DataFrame.',

@@ -1,6 +1,6 @@
 Metadata-Version: 1.1
 Name: googlefinance.get
-Version: 0.4.0
+Version: 0.4.1
 Summary: googlefinance.get is a single function from google finance api to DataFrame.
 Home-page: https://github.com/YongBeomKim/googlefinance.get
 Author: erdos
