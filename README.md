@@ -2,9 +2,9 @@
 # googlefinance.get
 
 ### What is different??
-1. based on : **https://github.com/pdevty/googlefinance-client-python**(https://github.com/pdevty/googlefinance-client-python)
+1. based on : **https://github.com/pdevty/googlefinance-client-python** [link](https://github.com/pdevty/googlefinance-client-python)
 1. Merged on sigle function 
-1. and Covert a simple input query (same as Google finance site's format)
+1. and Covert input query to simple (same as Google finance site's format)
 
 ### Default setting is...
 1. period   : 30 day ( d ~ Y )
