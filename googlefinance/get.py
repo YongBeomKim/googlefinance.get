@@ -4,7 +4,7 @@
 
 
 # single code, [codes] both possible
-def get_finance(codes, period='30d', interval="86400"):
+def get_data(codes, period='30d', interval="86400"):
 
     # single code to DataFrame
     def code_to_dataframe(code, period = "30d", interval="86400"):
@@ -60,6 +60,8 @@ def get_finance(codes, period='30d', interval="86400"):
         prices_data = pd.concat([prices_data, df[~df.index.duplicated(keep='last')]], axis=0)
     return prices_data
 
+
+
 if __name__ == '__main__':
 
     # based on : https://github.com/pdevty/googlefinance-client-python
@@ -70,12 +72,13 @@ if __name__ == '__main__':
     # period : 30 day's,
     # invertal : 1 day (closed time)
 
+    from googlefinance.googlefinance import get_data
 
     # 1. single code's DataFrame
 
-    df = get_finance("KRX:005930",
-                     period='1Y',     # total period
-                     interval='300')  # data interval (step by : 60 sec * n)
+    df = get_data("KRX:005930",
+                   period='1Y',     # total period
+                   interval='300')  # data interval (step by : 60 sec * n)
     print(df)
 
     #                            Code       Open       High        Low      Close  \
@@ -91,10 +94,10 @@ if __name__ == '__main__':
 
     # 2. Codes DataFrame (.get is Both usable)
 
-    df = get_finance(["INDEXDJX:.DJI",
-                      "INDEXNYSEGIS:NYA",
-                      "KRX:005930",
-                      "KOSDAQ:053800"], period='30d', inverval='300')
+    df = get_data(["INDEXDJX:.DJI",
+                   "INDEXNYSEGIS:NYA",
+                   "KRX:005930",
+                   "KOSDAQ:053800"], period='30d', inverval='300')
     print(df)
 
     #                               Code      Open      High       Low     Close  \
@@ -105,6 +108,6 @@ if __name__ == '__main__':
     #                         Volume
     # 2016-03-29 05:00:00   70452434
     # 2016-03-30 05:00:00   86159775
-    # 2016-03-31 05:00:00   79326225
+    # 2016-03-31 06:00:00   79326225
 
     # © 2018 GitHub : https://github.com/YongBeomKim

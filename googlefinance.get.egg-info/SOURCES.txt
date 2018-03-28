@@ -1,0 +1,10 @@
+README.rst
+setup.cfg
+setup.py
+googlefinance/__init__.py
+googlefinance/get.py
+googlefinance.get.egg-info/PKG-INFO
+googlefinance.get.egg-info/SOURCES.txt
+googlefinance.get.egg-info/dependency_links.txt
+googlefinance.get.egg-info/requires.txt
+googlefinance.get.egg-info/top_level.txt
