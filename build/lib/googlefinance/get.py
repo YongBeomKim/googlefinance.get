@@ -41,6 +41,14 @@ def get_data(codes, period='30d', interval="86400"):
                 data.append([float(cols[4]), float(cols[2]), float(cols[3]), float(cols[1]), int(cols[5])])
         df = pd.DataFrame(data, index = index, columns = ['Open', 'High', 'Low', 'Close', 'Volume'])
         df.insert(0,'Code',code)
+
+        # If you set the 'interval' by day..
+        # just printed the Date infomation
+        if int(interval) >= 86400:
+            df          = df.reset_index()                          # datetimeindex to columns data
+            df['index'] = df['index'].apply(lambda x : x.date())    # index is'n using the .apply()
+            df          = df.set_index('index')                     # set back to index
+            df.index    = pd.to_datetime(df.index)              # set the attribute to datatimeindex
         return df
 
 
