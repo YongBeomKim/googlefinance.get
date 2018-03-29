@@ -17,7 +17,7 @@
 ## 1. single code's DataFrame (SamSung Electronic)
 
 ```python
-$ pip install googlefinance.get
+$ pip install -i https://pypi.python.org/pypi googlefinance.get
 
 from googlefinance.get import get_data
 df = get_data("KRX:005930",
