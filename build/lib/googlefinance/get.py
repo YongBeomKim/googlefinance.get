@@ -49,6 +49,7 @@ def get_data(codes, period='30d', interval="86400"):
             df['index'] = df['index'].apply(lambda x : x.date())    # index is'n using the .apply()
             df          = df.set_index('index')                     # set back to index
             df.index    = pd.to_datetime(df.index)              # set the attribute to datatimeindex
+            df.index.name  = 'Date'
         return df
 
 
