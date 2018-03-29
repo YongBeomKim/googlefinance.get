@@ -1,6 +1,14 @@
 
 # googlefinance.get
 
+$ <strike>pip install googlefinance.get is something wrong temporary...</strike> 
+
+```
+$ pip install -i https://pypi.python.org/pypi googlefinance.get
+```
+
+
+
 ### What is different??
 1. based on : **https://github.com/pdevty/googlefinance-client-python** [link](https://github.com/pdevty/googlefinance-client-python)
 1. Merged on sigle function 
