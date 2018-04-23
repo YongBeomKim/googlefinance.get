@@ -1,2 +1,4 @@
 requests
 pandas
+pandas-datareader
+fix-yahoo-finance
