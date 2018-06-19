@@ -1,12 +1,12 @@
 Metadata-Version: 1.1
 Name: googlefinance.get
-Version: 0.4.6
-Summary: googlefinance.get is a single function from google finance & Yahoo finance api to DataFrame.
+Version: 0.4.7
+Summary: googlefinance.get is crawling the financial data from Google finance
 Home-page: https://github.com/YongBeomKim/googlefinance.get
 Author: Yong Beom Kim
 Author-email: saltman21@naver.com
 License: MIT
-Download-URL: https://github.com/YongBeomKim/googlefinance.get/dist/googlefinance.get-0.4.5-py3-none-any.whl
+Download-URL: https://github.com/YongBeomKim/googlefinance.get/dist/googlefinance.get-0.4.7-py3-none-any.whl
 Description: UNKNOWN
 Keywords: googlefinance
 Platform: UNKNOWN

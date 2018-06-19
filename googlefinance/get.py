@@ -3,132 +3,44 @@
 # https://gist.github.com/lebedov/f09030b865c4cb142af1
 
 
-def get_colume(prices_data, output):
-
-    import pandas as pd
-
-    codes = set(prices_data.code)  # code 들을 추출
-
-    if output in ['open', 'high', 'low', 'close', 'volume']:
-        result = []
-        for code in codes:
-            temp = prices_data[prices_data.code == code ][output]
-            temp.name = code
-            result.append(temp)
-        prices_data = pd.concat(result, axis=1)
-        return prices_data
-
-    else:
-        print('input error : output is only (open, high, low, close, volume)')
-        return
-
-
-
-# Yahoo finance module API
-def get_data_yahoo(code, start_date=False, end_date=False):
-
-    if end_date == False:
-        from datetime import datetime
-        end_date = str(datetime.now().date())
-
-    if start_date == False:
-        start_date = '2010-01-01'
-
-    from pandas_datareader import data
-    import fix_yahoo_finance as yf
-    yf.pdr_override()
-    stock = data.get_data_yahoo(code, start_date, end_date)
-    return stock
-
-
-
-# single code, [codes] both possible
+# multiful envirment possible
 def get_data(codes, period='30d', interval="86400", output = False):
 
     # output option check
-    if output != False  and  output not in ['open', 'high', 'low', 'close', 'volume']:
-        print('Option Error : output parametor is Not in [ open, high, low, close, volume]')
-        return
-
-    # single code to DataFrame
-    def code_to_dataframe(code, period = "30d", interval="86400"):
-
-        if period[-1] not in ['d','M','Y']:
-            print('Option Error : period parametor is Not in { d :day, M : month, Y : year }')
-            return
-
-        if type(code) != str:
-            print('''Input Error : please use the .get() function, this is for only single code..''')
-
-        import requests
-        from datetime import datetime
-        import pandas as pd
-
-        # input the 'codes' by KRX:005930
-
-        split_code = code.split(':')
-
-        # build the Query
-        query = { 'x' : split_code[0],   # exchange     ex) "NASD", "KRX", "KOSDAQ"
-                  'q' : split_code[1],   # company code ex) "gogl", "MSFT"
-                  'i' : interval,        # interval time : 60 sec X n
-                  'p' : period }         # Total period  : {"1Y" : 1 year, "30d" : 30 days}  cf) 30D is error
-        response = requests.get("https://finance.google.com/finance/getprices", params=query)
-        lines    = response.text.splitlines()  # json data split to [list]
-
-        #
-        data, index, basetime     = [], [], 0
-        for price in lines:
-            cols = price.split(",")
-            if cols[0][0] == 'a':
-                basetime = int(cols[0][1:])
-                index.append(datetime.fromtimestamp(basetime))
-                data.append([float(cols[4]), float(cols[2]), float(cols[3]), float(cols[1]), int(cols[5])])
-            elif cols[0][0].isdigit():
-                date = basetime + (int(cols[0])*int(query['i']))
-                index.append(datetime.fromtimestamp(date))
-                data.append([float(cols[4]), float(cols[2]), float(cols[3]), float(cols[1]), int(cols[5])])
-        df = pd.DataFrame(data, index = index, columns = ['open', 'high', 'low', 'close', 'volume'])
-        df.insert(0,'code',code)
-
-        # If you set the 'interval' by day..
-        # just printed the Date infomation
-        if int(interval) >= 86400:
-            df          = df.reset_index()                          # datetimeindex to columns data
-            df['index'] = df['index'].apply(lambda x : x.date())    # index is'n using the .apply()
-            df          = df.set_index('index')                     # set back to index
-            df.index    = pd.to_datetime(df.index)                  # set the attribute to datatimeindex
-            df.index.name  = 'date'
-        return df
+    if output != False  and  output not in ['Open', 'High', 'Low', 'Close', 'Volume']:
+        print('Option Error : output parametor is Not in [ Open, High, Low, Close, Volume]')
+        return None
 
 
-    # working 1 : "codes" is 'single code'
+    # working 1 : if "codes" is 'single code'
     if type(codes) == str:
-        return code_to_dataframe(codes, period, interval)
-
+        # return code_to_dataframe(codes, period, interval)
+        return get_datum(codes, period, interval)
 
     # checking the "codes" is not a [list] & single code
     if type(codes) != list:
         print("Input Error : 'code' is not a [list] or 'single code' ")
-        return
+        return None
 
-
-    # working 2 : "codes" is a [list] type
+    # working 2 : if "codes" is a [list] type
     import pandas as pd
-    prices_data = pd.DataFrame()
+    prices_data     = pd.DataFrame()
     for code in codes:
-        df = code_to_dataframe(code, period, interval)
+        # df          = code_to_dataframe(code, period, interval)
+        df          = get_datum(code, period, interval)
+        df.insert(0,'Code',code)
         prices_data = pd.concat([prices_data, df[~df.index.duplicated(keep='last')]], axis=0)
 
     # return it, only single data
-    if output in ['open', 'high', 'low', 'close', 'volume']:
+    if output in ['Open', 'High', 'Low', 'Close', 'Volume']:
+
         result = []
         if type(codes) == list:
             for code in codes:
-                temp = prices_data[prices_data.code == code ][output]
+                temp      = prices_data[prices_data.code == code ][output]
                 temp.name = code
                 result.append(temp)
-            prices_data = pd.concat(result, axis=1)
+            prices_data   = pd.concat(result, axis=1)
 
         if type(codes) == str:
             prices_data = prices_data[output]
@@ -138,94 +50,123 @@ def get_data(codes, period='30d', interval="86400", output = False):
 
 
 
+# single code to DataFrame
+def get_datum(code, period = "30d", interval="86400"):
 
-if __name__ == '__main__':
+    if period[-1] not in ['d','M','Y']:
+        print('Option Error : period parametor is Not in { d :day, M : month, Y : year }')
+        return None
 
-    # <Parmetor's>
-    #
-    # codelist download : http://www.nasdaq.com/screening/companies-by-industry.aspx?exchange=NYSE&render=download
-    #
-    # 1. code = 'NASDAQ: code list'
-    #
-    # 2. period = '30d': 30 days (default)
-    #             '1M' : Month
-    #             '1Y' : year
-    #
-    # 3. interval = 86400 : 1 day (default)
-    #               60 * integer (seconds)
+    if type(code) != str:
+        print('''Input Error : please use the .get() function, this is for only single code..''')
+        return None
 
+    import requests
+    from datetime import datetime
+    import pandas as pd
 
-    # based on : https://github.com/pdevty/googlefinance-client-python
-    # edited merged on sigle function
-    # and covert to the simple text input query  (same as Google finance site's format)
-    #
+    # input the 'codes' by KRX:005930
+    split_code = code.split(':')
 
-
-    # 1. Import googlefinance.get
-    # input the Codes by [list]
-    from googlefinance.get import get_data
-
-    df = get_data(['KRX:005930',
-                   'KOSDAQ:091990',
-                   'NASDAQ:TSLA',
-                   'NASDAQ:AMZN'], period='2M')
-    print(df.shape)
-    df.head()
-
-    # (154, 6)
-    #     Code    Open    High    Low     Close   Volume
-    # Date
-    # 2018-02-05  KRX:005930  2325000.0   2416000.0   2300000.0   2396000.0   516513
-    # 2018-02-06  KRX:005930  2330000.0   2396000.0   2329000.0   2371000.0   364291
-    # 2018-02-07  KRX:005930  2412000.0   2413000.0   2290000.0   2290000.0   465246
-    # 2018-02-08  KRX:005930  2306000.0   2331000.0   2299000.0   2300000.0   448981
-    # 2018-02-09  KRX:005930  2222000.0   2259000.0   2221000.0   2235000.0   339916
+    # build the Query
+    query = { 'x' : split_code[0],   # exchange     ex) "NASD", "KRX", "KOSDAQ"
+              'q' : split_code[1],   # company code ex) "gogl", "MSFT"
+              'i' : interval,        # interval time : 60 sec X n
+              'p' : period }         # Total period  : {"1Y" : 1 year, "30d" : 30 days}  cf) 30D is error
+    response = requests.get("https://finance.google.com/finance/getprices", params=query)
+    lines    = response.text.splitlines()  # json data split to [list]
 
 
-    # 2. filtering by Code
-    df[df.Code == 'NASDAQ:TSLA'].head()
+    # response the Finance Data from Google
+    data, index, basetime     = [], [], 0
+    for price in lines:
+        cols = price.split(",")
+        if cols[0][0] == 'a':
+            basetime = int(cols[0][1:])
+            index.append(datetime.fromtimestamp(basetime))
+            data.append([float(cols[4]), float(cols[2]), float(cols[3]), float(cols[1]), int(cols[5])])
+        elif cols[0][0].isdigit():
+            date = basetime + (int(cols[0])*int(query['i']))
+            index.append(datetime.fromtimestamp(date))
+            data.append([float(cols[4]), float(cols[2]), float(cols[3]), float(cols[1]), int(cols[5])])
+    df = pd.DataFrame(data, index = index, columns = ['Open', 'High', 'Low', 'Close', 'Volume'])
 
-    #     Code    Open    High    Low     Close   Volume
-    # Date
-    # 2017-04-04  NASDAQ:AMZN     888.00  893.4900    885.4200    891.51  3422328
-    # 2017-04-05  NASDAQ:AMZN     891.50  908.5384    890.2800    906.83  4984656
-    # 2017-04-06  NASDAQ:AMZN     910.82  923.7200    905.6200    909.28  7508370
-    # 2017-04-07  NASDAQ:AMZN     913.80  917.1899    894.4927    898.28  6344065
-    # 2017-04-08  NASDAQ:AMZN     899.65  900.0900    889.3100    894.88  3710922
-
-
-    # 3. googlefinance.get
-    # input the Single Code
-
-    df = get_data('NASDAQ:AMZN',
-                   period='1Y')
-    df.head()
-    #     Code    Open    High    Low     Close   Volume
-    # Date
-    # 2017-04-04  NASDAQ:AMZN     888.00  893.4900    885.4200    891.51  3422328
-    # 2017-04-05  NASDAQ:AMZN     891.50  908.5384    890.2800    906.83  4984656
-    # 2017-04-06  NASDAQ:AMZN     910.82  923.7200    905.6200    909.28  7508370
-    # 2017-04-07  NASDAQ:AMZN     913.80  917.1899    894.4927    898.28  6344065
-    # 2017-04-08  NASDAQ:AMZN     899.65  900.0900    889.3100    894.88  3710922
+    # If you set the 'interval' by day..
+    # just printed the Date infomation
+    if int(interval) >= 86400:
+        df          = df.reset_index()                          # datetimeindex to columns data
+        df['index'] = df['index'].apply(lambda x : x.date())    # index is'n using the .apply()
+        df          = df.set_index('index')                     # set back to index
+        df.index    = pd.to_datetime(df.index)                  # set the attribute to datatimeindex
+        df.index.name  = 'date'
+    return df
 
 
-    # 4. googlefinance.get
-    # Using Yahoo finance history data API
 
-    from googlefinance.get import get_data_yahoo
-    get_data_yahoo('005930.KS',
-                    start_date = '2010-01-01', # (default) : 2010-01-01
-                    end_date   = '2018-04-01') # (default) : Today Date
+def get_code(type_info=False):
 
-    # [*********************100%***********************]  1 of 1 downloaded
+    print ('We can get the Code Numbers of "NYSE", "NASDAQ" and "KRX(default)"')
+    import pandas as pd
 
-    #     Open    High    Low     Close   Adj Close   Volume
-    # Date
-    # 2010-01-04  803000.0    809000.0    800000.0    809000.0    7.338929e+05    239016
-    # 2010-01-05  826000.0    829000.0    815000.0    822000.0    7.456860e+05    558517
-    # 2010-01-06  829000.0    841000.0    826000.0    841000.0    7.629221e+05    458977
-    # 2010-01-07  841000.0    841000.0    813000.0    813000.0    7.375216e+05    442159
-    # 2010-01-08  820000.0    821000.0    806000.0    821000.0    7.447790e+05    295551
+    if type_info in ['NYSE', 'NASDAQ']:
+        print("Crawling the " + type_info + " 's codes")
+        df = pd.read_csv('http://www.nasdaq.com/screening/companies-by-industry.aspx?exchange=' +
+                          type_info + '&render=download')
+        df_code = [type_info + ':'+ code    for code in df.Symbol]
+        df.insert(0, 'Code', df_code)
+        return df.iloc[:3, :-1]
+
+    else:
+        print("Crawling the " + "Kospi & Kosdaq (default)" + " 's codes")
+
+        def get_krx(date=None, market = 'ALL'):
+            import requests
+            import pandas as pd
+            from io import BytesIO
+            from datetime import datetime
+
+            if date == None:
+                date = datetime.today().strftime('%Y%m%d')
+
+            headers               = requests.utils.default_headers()
+            headers['User-Agent'] = '''Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36'''
+            gen_otp_url  = 'http://marketdata.krx.co.kr/contents/COM/GenerateOTP.jspx'
+            gen_otp_data = {'name'         : 'fileDown',
+                            'filetype'     : 'xls',
+                            'market_gubun' : market,     # 'STK': Kospi
+                            'url'          : 'MKD/04/0404/04040200/mkd04040200_01',
+                            'indx_ind_cd'  : '', 'sect_tp_cd'   : '',
+                            'schdate'      : date,
+                            'pagePath'     : '/contents/MKD/04/0404/04040200/MKD04040200.jsp', }
+            r                     = requests.post(gen_otp_url, gen_otp_data, headers=headers)
+            OTP_code              = r.content
+
+            # Ajax XLS file download
+            down_url  = 'http://file.krx.co.kr/download.jspx'
+            down_data = {'code': OTP_code}
+            r         = requests.post(down_url, down_data)
+            df        = pd.read_excel(BytesIO(r.content), header=0, thousands=',')
+            return df
 
 
-    # © 2018 GitHub : https://github.com/YongBeomKim
+        krx   = get_krx().iloc[:,:2]              # 상장기업 모든목록
+        kospi = get_krx(market='STK').iloc[:,:2]  # 상장사  기업목록
+
+        import pandas as pd
+        kosdaq_code = [ code   for code      in  krx['종목코드']
+                               if  code  not in  list(kospi['종목코드']) ]
+
+        kosdaq_ = [krx[krx['종목코드'] == code]  for code in kosdaq_code]
+        kosdaq  = pd.concat(kosdaq_, axis = 0)
+        kosdaq  = kosdaq.reset_index(drop = True)
+        kosdaq.columns = ['No','Name']
+        kosdaq_code    = ['KOSDAQ:' + code  for code in kosdaq.No]
+        kosdaq.insert(0, 'Code', kosdaq_code)
+
+        kospi.columns  = ['No','Name']
+        kospi_code     = ['KRX:' + code  for code in kospi.No]
+        kospi.insert(0, 'Code', kospi_code)
+
+        df = pd.concat([kosdaq, kospi], axis=0)
+        df = df.reset_index(drop = True)
+        return df
