@@ -1,82 +1,91 @@
 
-# googlefinance.get
 
-### What is different??
-1. based on : **https://github.com/pdevty/googlefinance-client-python** [link](https://github.com/pdevty/googlefinance-client-python)
-1. Merged on sigle function 
-1. and Covert input query to simple (same as Google finance site's format)
-
-### Default setting is...
-1. period   : 30 day ( 1d ~ 10Y )
-1. invertal : 86400 sec by daily closed time (300 ~ 86400)
-
-`get_finance("KRX:005930")` and  `get_finance(["INDEXDJX:.DJI","INDEXNYSEGIS:NYA","KRX:005930","KOSDAQ:053800"])` is worked..
+.. image:: https://s3.amazonaws.com/images.seroundtable.com/charts2-Google-1900px--1444997211.jpg
+	   :target: https://www.google.com/finance
 
 
 
-## 1. single code's DataFrame (SamSung Electronic)
+Google Finance GET
+==================
 
-```python
-$ pip install googlefinance.get
-
-from googlefinance.get import get_data
-df = get_data("KRX:005930",
-              period='30d')    # total period
-
-print(df)
-#                          Code       Open       High        Low      Close  \
-#2018-02-12   KRX:005930  2255000.0  2258000.0  2252000.0  2254000.0
-#2018-02-13   KRX:005930  2254000.0  2260000.0  2253000.0  2259000.0
-#2018-02-14   KRX:005930  2259000.0  2271000.0  2259000.0  2263000.0
-
-#                      Volume
-#2018-02-12    35993
-#2018-02-13    11044
-#2018-02-14     9902
-```
-
-## If you set the interval in single code (ex) SamSung Electronic)
-
-```python
-$ pip install googlefinance.get
-
-from googlefinance.get import get_data
-df = get_data("KRX:005930",
-              period='30d',    # total period
-              interval='300')  # data interval (step by : 60 sec * n)
-print(df)
-#                          Code       Open       High        Low      Close  \
-#2018-02-12 09:05:00  KRX:005930  2255000.0  2258000.0  2252000.0  2254000.0
-#2018-02-12 09:10:00  KRX:005930  2254000.0  2260000.0  2253000.0  2259000.0
-#2018-02-12 09:15:00  KRX:005930  2259000.0  2271000.0  2259000.0  2263000.0
-
-#                      Volume
-#2018-02-12 09:05:00   35993
-#2018-02-12 09:10:00   11044
-#2018-02-12 09:15:00    9902
-```
+Getting the Financial data From Google Finance
 
 
-## If you set the Codes to DataFrame ([code1, code2, code3, ...])
-```python
-df = get_data(["INDEXDJX:.DJI",
-               "INDEXNYSEGIS:NYA",
-               "KRX:005930",
-               "KOSDAQ:053800"], 
-               interval='300',
-               period='1Y')
-print(df)
+.. image:: https://img.shields.io/pypi/v/requests.svg
+    :target: https://pypi.org/project/requests/
 
-#                              Code      Open      High       Low     Close  \
-#2016-03-29 09:05:00  INDEXDJX:.DJI  17526.08  17583.81  17493.03  17535.39
-#2016-03-30 09:10:00  INDEXDJX:.DJI  17512.58  17642.81  17434.27  17633.11
-#2016-03-31 09:15:00  INDEXDJX:.DJI  17652.36  17790.11  17652.36  17716.66
+.. image:: https://img.shields.io/pypi/l/requests.svg
+    :target: https://pypi.org/project/requests/
 
-#                        Volume
-#2016-03-29 09:05:00   70452434
-#2016-03-30 09:10:00   86159775
-#2016-03-31 09:15:00   79326225
-```
+.. image:: https://img.shields.io/pypi/pyversions/requests.svg
+    :target: https://pypi.org/project/requests/
+
+
+
+Installation
+============
+
+Based on : https://github.com/pdevty/googlefinance-client-python
+
+	$ pip install googlefinance.get
+	$ pip install -i https://pypi.python.org/pypi googlefinance.get
+
+
+
+Getting Codes
+=============
+
+Default Setting is KRX Market's Info (South Korea Market)
+
+
+.. code-block:: python
+
+    >>> from googlefinance.get import get_code
+	>>> get_code()
+	>>> get_code('NASDAQ')
+	>>> get_code('NYSE')
+
+``NASDAQ`` & ``NYSE`` is from the Nasdaq site's CSV `download <https://www.nasdaq.com/screening/companies-by-industry.aspx?exchange=NASDAQ&render=download>`_.
+
+
+
+
+
+Getting Historical Financial Data
+=================================
+
+Getting the Only Single Company's Historical Financial Data
+
+#. code = 'NASDAQ: code list'
+
+#. period = '30d': 30 days (default), '1M' : Month , '1Y' : year
+
+#. interval = 86400 : 1 day (default), 60 * integer  (seconds)
+
+.. code-block:: python
+	>>> from googlefinance.get import get_datum
+	>>> df = get_datum('KRX:005930', period='2M'， interval =86400)
+	date        Open     High     Low      Close    Volume
+	2018-05-04  53000.0  53900.0  51800.0  51900.0  39290305
+	2018-05-08  52600.0  53200.0  51900.0  52600.0  22907823
+	2018-05-09  52600.0  52800.0  50900.0  50900.0  15914664
+
+
+
+Getting Historical Financial Data
+=================================
+
+Insert the Code & Concat the DataFrame
+
+.. code-block:: python
+	>>> from googlefinance.get import get_data
+	>>> codes = ['KRX:005930','KOSDAQ:091990','NASDAQ:TSLA','NASDAQ:AMZN']
+	>>> df = get_data(codes, period='2M'， interval =86400)
+
+	date       Code        Open     High     Low      Close    Volume
+	2018-05-04  KRX:005930  53000.0  53900.0  51800.0  51900.0  39290305
+	2018-05-08  KRX:005930  52600.0  53200.0  51900.0  52600.0  22907823
+	2018-05-09  KRX:005930  52600.0  52800.0  50900.0  50900.0  15914664
 
 
 © 2018 GitHub : https://github.com/YongBeomKim
