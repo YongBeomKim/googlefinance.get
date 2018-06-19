@@ -11,7 +11,7 @@ setup(
     author           = 'Yong Beom Kim',
     author_email     = 'saltman21@naver.com',
     url              = 'https://github.com/YongBeomKim/googlefinance.get',
-    download_url     = 'https://github.com/YongBeomKim/googlefinance.get/dist/googlefinance.get-0.4.7-py3-none-any.whl',
+    download_url     = 'https://github.com/YongBeomKim/googlefinance.get/blob/master/dist/googlefinance.get-0.4.7-py2.py3-none-any.whl',
     keywords         = 'googlefinance',
     install_requires = ['requests',
                         'pandas'],
@@ -19,3 +19,5 @@ setup(
                         'Intended Audience :: Financial and Insurance Industry',
                         'License :: OSI Approved :: MIT License']
     )
+
+
