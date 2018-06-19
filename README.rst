@@ -27,7 +27,11 @@ Installation
 
 Based on : https://github.com/pdevty/googlefinance-client-python
 
+
+.. code-block:: bash
+
 	$ pip install googlefinance.get
+
 	$ pip install -i https://pypi.python.org/pypi googlefinance.get
 
 
@@ -63,6 +67,7 @@ Getting the Only Single Company's Historical Financial Data
 #. interval = 86400 : 1 day (default), 60 * integer  (seconds)
 
 .. code-block:: python
+
 	>>> from googlefinance.get import get_datum
 	>>> df = get_datum('KRX:005930', period='2M'， interval =86400)
 	date        Open     High     Low      Close    Volume
@@ -78,6 +83,7 @@ Getting Historical Financial Data
 Insert the Code & Concat the DataFrame
 
 .. code-block:: python
+
 	>>> from googlefinance.get import get_data
 	>>> codes = ['KRX:005930','KOSDAQ:091990','NASDAQ:TSLA','NASDAQ:AMZN']
 	>>> df = get_data(codes, period='2M'， interval =86400)
