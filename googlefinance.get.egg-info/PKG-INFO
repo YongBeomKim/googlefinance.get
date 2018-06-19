@@ -1,15 +1,112 @@
-Metadata-Version: 1.1
+Metadata-Version: 2.1
 Name: googlefinance.get
-Version: 0.4.7
+Version: 0.4.8
 Summary: googlefinance.get is crawling the financial data from Google finance
 Home-page: https://github.com/YongBeomKim/googlefinance.get
 Author: Yong Beom Kim
 Author-email: saltman21@naver.com
 License: MIT
-Download-URL: https://github.com/YongBeomKim/googlefinance.get/blob/master/dist/googlefinance.get-0.4.7-py3-none-any.whl
-Description: UNKNOWN
+Download-URL: https://github.com/YongBeomKim/googlefinance.get/blob/master/dist/googlefinance.get-0.4.8-py3-none-any.whl
+Description: 
+        
+        .. image:: https://s3.amazonaws.com/images.seroundtable.com/charts2-Google-1900px--1444997211.jpg
+        	   :target: https://www.google.com/finance
+        
+        
+        
+        Google Finance GET
+        ==================
+        
+        Getting the Financial data From Google Finance
+        
+        
+        .. image:: https://img.shields.io/pypi/v/requests.svg
+            :target: https://pypi.org/project/requests/
+        
+        .. image:: https://img.shields.io/pypi/l/requests.svg
+            :target: https://pypi.org/project/requests/
+        
+        .. image:: https://img.shields.io/pypi/pyversions/requests.svg
+            :target: https://pypi.org/project/requests/
+        
+        
+        
+        Installation
+        ============
+        
+        Based on : https://github.com/pdevty/googlefinance-client-python
+        
+        
+        .. code-block:: bash
+        
+        	$ pip install googlefinance.get
+        
+        	$ pip install -i https://pypi.python.org/pypi googlefinance.get
+        
+        
+        
+        Getting Codes
+        =============
+        
+        Default Setting is KRX Market's Info (South Korea Market)
+        
+        
+        .. code-block:: python
+        
+            >>> from googlefinance.get import get_code
+        	>>> get_code()
+        	>>> get_code('NASDAQ')
+        	>>> get_code('NYSE')
+        
+        ``NASDAQ`` & ``NYSE`` is from the Nasdaq site's CSV `download <https://www.nasdaq.com/screening/companies-by-industry.aspx?exchange=NASDAQ&render=download>`_.
+        
+        
+        
+        
+        
+        Getting Historical Financial Data
+        =================================
+        
+        Getting the Only Single Company's Historical Financial Data
+        
+        #. code = 'NASDAQ: code list'
+        
+        #. period = '30d': 30 days (default), '1M' : Month , '1Y' : year
+        
+        #. interval = 86400 : 1 day (default), 60 * integer  (seconds)
+        
+        .. code-block:: python
+        
+        	>>> from googlefinance.get import get_datum
+        	>>> df = get_datum('KRX:005930', period='2M'， interval =86400)
+        	date        Open     High     Low      Close    Volume
+        	2018-05-04  53000.0  53900.0  51800.0  51900.0  39290305
+        	2018-05-08  52600.0  53200.0  51900.0  52600.0  22907823
+        	2018-05-09  52600.0  52800.0  50900.0  50900.0  15914664
+        
+        
+        
+        Getting Historical Financial Data
+        =================================
+        
+        Insert the Code & Concat the DataFrame
+        
+        .. code-block:: python
+        
+        	>>> from googlefinance.get import get_data
+        	>>> codes = ['KRX:005930','KOSDAQ:091990','NASDAQ:TSLA','NASDAQ:AMZN']
+        	>>> df = get_data(codes, period='2M'， interval =86400)
+        
+        	date       Code        Open     High     Low      Close    Volume
+        	2018-05-04  KRX:005930  53000.0  53900.0  51800.0  51900.0  39290305
+        	2018-05-08  KRX:005930  52600.0  53200.0  51900.0  52600.0  22907823
+        	2018-05-09  KRX:005930  52600.0  52800.0  50900.0  50900.0  15914664
+        
+        
+        © 2018 GitHub : https://github.com/YongBeomKim
 Keywords: googlefinance
 Platform: UNKNOWN
 Classifier: Programming Language :: Python :: 3.6
 Classifier: Intended Audience :: Financial and Insurance Industry
 Classifier: License :: OSI Approved :: MIT License
+Description-Content-Type: text/x-rst
