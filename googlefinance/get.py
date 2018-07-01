@@ -11,7 +11,6 @@ def get_data(codes, period='30d', interval="86400", output = False):
         print('Option Error : output parametor is Not in [ Open, High, Low, Close, Volume]')
         return None
 
-
     # working 1 : if "codes" is 'single code'
     if type(codes) == str:
         # return code_to_dataframe(codes, period, interval)
@@ -48,8 +47,6 @@ def get_data(codes, period='30d', interval="86400", output = False):
     return prices_data
 
 
-
-
 # single code to DataFrame
 def get_datum(code, period = "30d", interval="86400"):
 
@@ -76,31 +73,34 @@ def get_datum(code, period = "30d", interval="86400"):
     response = requests.get("https://finance.google.com/finance/getprices", params=query)
     lines    = response.text.splitlines()  # json data split to [list]
 
+    try:
+        # response the Finance Data from Google
+        data, index, basetime     = [], [], 0
+        for price in lines:
+            cols = price.split(",")
+            if cols[0][0] == 'a':
+                basetime = int(cols[0][1:])
+                index.append(datetime.fromtimestamp(basetime))
+                data.append([float(cols[4]), float(cols[2]), float(cols[3]), float(cols[1]), int(cols[5])])
+            elif cols[0][0].isdigit():
+                date = basetime + (int(cols[0])*int(query['i']))
+                index.append(datetime.fromtimestamp(date))
+                data.append([float(cols[4]), float(cols[2]), float(cols[3]), float(cols[1]), int(cols[5])])
+        df = pd.DataFrame(data, index = index, columns = ['Open', 'High', 'Low', 'Close', 'Volume'])
 
-    # response the Finance Data from Google
-    data, index, basetime     = [], [], 0
-    for price in lines:
-        cols = price.split(",")
-        if cols[0][0] == 'a':
-            basetime = int(cols[0][1:])
-            index.append(datetime.fromtimestamp(basetime))
-            data.append([float(cols[4]), float(cols[2]), float(cols[3]), float(cols[1]), int(cols[5])])
-        elif cols[0][0].isdigit():
-            date = basetime + (int(cols[0])*int(query['i']))
-            index.append(datetime.fromtimestamp(date))
-            data.append([float(cols[4]), float(cols[2]), float(cols[3]), float(cols[1]), int(cols[5])])
-    df = pd.DataFrame(data, index = index, columns = ['Open', 'High', 'Low', 'Close', 'Volume'])
+        # If you set the 'interval' by day..
+        # just printed the Date infomation
+        if int(interval) >= 86400:
+            df          = df.reset_index()                          # datetimeindex to columns data
+            df['index'] = df['index'].apply(lambda x : x.date())    # index is'n using the .apply()
+            df          = df.set_index('index')                     # set back to index
+            df.index    = pd.to_datetime(df.index)                  # set the attribute to datatimeindex
+            df.index.name  = 'date'
+        return df
 
-    # If you set the 'interval' by day..
-    # just printed the Date infomation
-    if int(interval) >= 86400:
-        df          = df.reset_index()                          # datetimeindex to columns data
-        df['index'] = df['index'].apply(lambda x : x.date())    # index is'n using the .apply()
-        df          = df.set_index('index')                     # set back to index
-        df.index    = pd.to_datetime(df.index)                  # set the attribute to datatimeindex
-        df.index.name  = 'date'
-    return df
-
+    except:
+        print('Could be Blocked by Bot..')
+        return response.text[3000:6000]
 
 
 def get_code(type_info=False):
@@ -119,54 +119,52 @@ def get_code(type_info=False):
     else:
         print("Crawling the " + "Kospi & Kosdaq (default)" + " 's codes")
 
-        def get_krx(date=None, market = 'ALL'):
-            import requests
+        def krx_info(market = False):
+
             import pandas as pd
+            import numpy as np
+            import requests
             from io import BytesIO
-            from datetime import datetime
 
-            if date == None:
-                date = datetime.today().strftime('%Y%m%d')
+            url = 'http://kind.krx.co.kr/corpgeneral/corpList.do'
+            data = {
+                'method':'download',
+                'orderMode':'1',           # 정렬컬럼
+                'orderStat':'D',           # 정렬 내림차순
+                'searchType':'13',         # 검색유형: 상장법인
+                'fiscalYearEnd':'all',     # 결산월: 전체
+                'location':'all',          # 지역: 전체
+                "marketType": market,      # 유가증권:"stockMkt", 코스닥:"kosdaqMkt",
+            }
 
-            headers               = requests.utils.default_headers()
-            headers['User-Agent'] = '''Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36'''
-            gen_otp_url  = 'http://marketdata.krx.co.kr/contents/COM/GenerateOTP.jspx'
-            gen_otp_data = {'name'         : 'fileDown',
-                            'filetype'     : 'xls',
-                            'market_gubun' : market,     # 'STK': Kospi
-                            'url'          : 'MKD/04/0404/04040200/mkd04040200_01',
-                            'indx_ind_cd'  : '', 'sect_tp_cd'   : '',
-                            'schdate'      : date,
-                            'pagePath'     : '/contents/MKD/04/0404/04040200/MKD04040200.jsp', }
-            r                     = requests.post(gen_otp_url, gen_otp_data, headers=headers)
-            OTP_code              = r.content
+            r   = requests.post(url, data=data)
+            f   = BytesIO(r.content)
+            dfs = pd.read_html(f, header=0, parse_dates=['상장일'])
+            df  = dfs[0].copy()
 
-            # Ajax XLS file download
-            down_url  = 'http://file.krx.co.kr/download.jspx'
-            down_data = {'code': OTP_code}
-            r         = requests.post(down_url, down_data)
-            df        = pd.read_excel(BytesIO(r.content), header=0, thousands=',')
+            # 숫자를 앞자리가 0인 6자리 문자열로 변환
+            df['종목코드'] = df['종목코드'].astype(np.str)
+            df['종목코드'] = df['종목코드'].str.zfill(6)
             return df
 
+        def get_code(market):
+            # 유가증권:"stockMkt", 코스닥:"kosdaqMkt",
+            if market == "stockMkt":
+                code_head = 'KRX:'
+            else:
+                code_head = 'KOSDAQ:'
+            kospi = krx_info(market)
+            kospi = kospi.iloc[:,:2]
+            kospi_code = [code_head + code   for code in kospi.종목코드]
+            kospi.insert(1, 'Google', kospi_code)
+            kospi = kospi.iloc[:, [2,1,0]]
+            kospi.columns = ['Code', 'Google', 'Name']
+            return kospi
 
-        krx   = get_krx().iloc[:,:2]              # 상장기업 모든목록
-        kospi = get_krx(market='STK').iloc[:,:2]  # 상장사  기업목록
-
-        import pandas as pd
-        kosdaq_code = [ code   for code      in  krx['종목코드']
-                               if  code  not in  list(kospi['종목코드']) ]
-
-        kosdaq_ = [krx[krx['종목코드'] == code]  for code in kosdaq_code]
-        kosdaq  = pd.concat(kosdaq_, axis = 0)
-        kosdaq  = kosdaq.reset_index(drop = True)
-        kosdaq.columns = ['No','Name']
-        kosdaq_code    = ['KOSDAQ:' + code  for code in kosdaq.No]
-        kosdaq.insert(0, 'Code', kosdaq_code)
-
-        kospi.columns  = ['No','Name']
-        kospi_code     = ['KRX:' + code  for code in kospi.No]
-        kospi.insert(0, 'Code', kospi_code)
-
-        df = pd.concat([kosdaq, kospi], axis=0)
-        df = df.reset_index(drop = True)
-        return df
+        kospi  = get_code("stockMkt")
+        kosdaq = get_code("kosdaqMkt")
+        codes  = pd.concat([kospi, kosdaq])
+        codes  = codes.reset_index(drop=True)
+        codes_int = [ int(cod)  for cod in codes.Code]
+        codes.insert(1, 'Code_int', codes_int)
+        return codes

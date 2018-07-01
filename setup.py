@@ -11,7 +11,7 @@ with open('README.rst', 'r', 'utf-8') as f:
 
 setup(
     name             = 'googlefinance.get',
-    version          = '0.4.8',
+    version          = '0.4.9',
     packages         = find_packages(),   # ['googlefinance.get'],  # same as the name above
     description      = 'googlefinance.get is crawling the financial data from Google finance',
     long_description = readme,
@@ -20,7 +20,7 @@ setup(
     author           = 'Yong Beom Kim',
     author_email     = 'saltman21@naver.com',
     url              = 'https://github.com/YongBeomKim/googlefinance.get',
-    download_url     = 'https://github.com/YongBeomKim/googlefinance.get/blob/master/dist/googlefinance.get-0.4.8-py2.py3-none-any.whl',
+    download_url     = 'https://github.com/YongBeomKim/googlefinance.get/blob/master/dist/googlefinance.get-0.4.9-py2.py3-none-any.whl',
     keywords         = 'googlefinance',
     install_requires = ['requests',
                         'pandas'],
